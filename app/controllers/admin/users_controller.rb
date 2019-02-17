@@ -1,4 +1,6 @@
 class Admin::UsersController < ApplicationController
+  before_action :require_admin
+
   def new
     @user = User.new
   end
@@ -27,7 +29,7 @@ class Admin::UsersController < ApplicationController
 
   def update
     @user = User.find(params[:id])
-    if @user.update
+    if @user.update(user_params)
       redirect_to admin_user_path(@user), notice: "ユーザー 「#{@user.name}」を更新しました。"
     else
       render :edit
@@ -45,5 +47,9 @@ class Admin::UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :email, :admin, :password, :password_confirmation)
+  end
+
+  def require_admin
+    redirect_to root_path unless current_user.admin?
   end
 end
